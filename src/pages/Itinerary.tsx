@@ -1,3 +1,6 @@
+import { TravelDocumentsLink } from '@/components/trip/TravelDocumentsLink';
+import { activityDepartures } from '@/data/activityDepartures';
+import { ContactText } from '@/components/trip/ContactText';
 import { RestaurantMealPanel } from '@/components/trip/RestaurantMealPanel';
 import { LuggageReminder } from '@/components/trip/LuggageReminder';
 import { transfers } from '@/data/transfers';
@@ -143,6 +146,12 @@ export default function Itinerary() {
         ))}
       </nav>
 
+      {day.id === 'oct10' && <aside className="my-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950" aria-label="Rappel hôtel de Séoul">
+        <p className="font-bold">10 octobre · Appeler l’hôtel de Séoul</p>
+        <p className="mt-1 text-xs leading-relaxed">The Ambassador Seoul – Pullman : reconfirmer que la chambre réservée dès le 11 octobre sera bien conservée pour notre arrivée le 12 octobre.</p>
+        <a href="tel:+82222751101" className="mt-2 inline-flex min-h-11 items-center font-bold underline">Appeler · +82 2-2275-1101</a>
+      </aside>}
+
       <Tabs key={day.id} defaultValue="now" className="mt-2 gap-0">
         <div className="sticky top-16 z-30 -mx-3 border-y border-stone-200/80 bg-[#f4f5f1]/95 px-2 py-2 backdrop-blur-xl">
           <FixedTabGrid columns={mainTabColumns} className="gap-0.5">
@@ -270,10 +279,21 @@ function NowPanel({ day, events, status }: { day: DailyPlan; events: EventOfDay[
           <p className="text-[9px] font-black uppercase tracking-[0.17em] text-[#d84a43]">Event of the Day</p>
           <div className="mt-3 space-y-3">
             {events.map((event, index) => {
-              if (event.kind === 'transfer') {
-                const transfer = transfers.find(item => item.dayId === day.id);
-                return transfer ? <div key={transfer.reference}><p className="mb-2 text-[8px] font-black uppercase tracking-[0.14em] text-stone-400">Étape {index + 1}</p><TransferCard transfer={transfer} /></div> : null;
-              }
+              const transfer = event.kind === 'transfer' ? transfers.find(item => item.dayId === day.id) : undefined;
+              const matchingItem = day.agenda.find(item =>
+                (event.bookingUrl && item.bookingUrl === event.bookingUrl) || item.title === event.title ||
+                (event.kind === 'excursion' && item.excursion));
+              const stops = event.steps ?? matchingItem?.excursion?.stops;
+              const activityItems = day.id === 'oct03' && event.kind === 'activity'
+                ? day.agenda.slice(1)
+                : day.id === 'oct11' && event.kind === 'activity'
+                  ? day.agenda.filter(item => item.kind === 'activity')
+                  : [];
+              const departure = (event.kind === 'activity' || event.kind === 'excursion')
+                ? activityDepartures.filter(item => item.dayId === day.id)[day.id === 'oct02' ? index : 0]
+                : day.id === 'sep30' && event.kind === 'flight' ? { leave: '05:45 · en taxi / voiture' }
+                  : day.id === 'oct12' && event.kind === 'flight' ? { leave: '05:30 · taxi à réserver' }
+                  : day.id === 'oct15' && event.kind === 'flight' ? { leave: '06:15 · taxi à réserver' } : undefined;
               const EventIcon = getEventIcon(event);
               const theme = getEventTheme(event);
               const isAirbnb = Boolean(event.bookingUrl);
@@ -289,6 +309,11 @@ function NowPanel({ day, events, status }: { day: DailyPlan; events: EventOfDay[
                     </div>
                     <Badge className={cn('shrink-0 text-[8px] font-black uppercase tracking-wide', theme.type)}>{eventKindLabels[event.kind]}</Badge>
                   </div>
+                  {departure && <div className="mt-3 rounded-xl bg-[#e5f0ed] px-3 py-2 text-xs text-[#173d3a]">
+                    <span>{day.id === 'sep30' ? 'Départ conseillé de la maison : ' : 'Départ conseillé de l’hôtel : '}</span><strong>{departure.leave}</strong>
+                    {day.id === 'oct02' && index === 1 && <span> · si retour à l’hôtel</span>}
+                  </div>}
+                  {event.kind === 'hotel' && (day.id === 'oct01' || day.id === 'oct09') && <div className="mt-3 rounded-xl bg-[#e5f0ed] px-3 py-2 text-xs font-bold text-[#173d3a]">Ask for early check-in</div>}
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     <div className="rounded-2xl bg-white px-3 py-2.5 shadow-sm">
                       <p className="text-[8px] font-black uppercase tracking-[0.14em] text-stone-400">Horaire</p>
@@ -296,10 +321,10 @@ function NowPanel({ day, events, status }: { day: DailyPlan; events: EventOfDay[
                     </div>
                     <div className="rounded-2xl bg-white px-3 py-2.5 shadow-sm">
                       <p className="text-[8px] font-black uppercase tracking-[0.14em] text-stone-400">Lieu / rendez-vous</p>
-                      <p className="mt-1 text-sm font-bold leading-snug">{event.location}</p>
+                      <a className="mt-1 block text-sm font-bold leading-snug text-[#176158] underline underline-offset-2 hover:text-[#102b29]" href={transfer ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(transfer.airportAddress)}` : event.mapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`} target="_blank" rel="noreferrer">{transfer ? `${transfer.airport} · ${transfer.terminal} · hall des arrivées` : event.location}</a>
                     </div>
                   </div>
-                  {event.detail && <p className="mt-3 text-xs leading-relaxed text-stone-600">{event.detail}</p>}
+
                   <div className="mt-3 flex flex-wrap gap-2">
                     {event.included && <Badge className="bg-black text-[8px] text-white">Voyage Privé · inclus</Badge>}
                     {event.paid && isAirbnb && <Badge className="bg-blue-600 text-[8px] text-white">Airbnb · confirmé</Badge>}
@@ -309,19 +334,34 @@ function NowPanel({ day, events, status }: { day: DailyPlan; events: EventOfDay[
                   </div>
                   <div className={cn('mt-3 grid gap-2', (event.bookingUrl || event.ticketUrl) && 'sm:grid-cols-2')}>
                     <Button asChild variant="outline" className="min-h-11 w-full rounded-full border-stone-300 bg-white font-bold text-[#14231d] hover:bg-stone-100">
-                      <a href={event.mapUrl} target="_blank" rel="noreferrer">Google Maps<Navigation className="size-4" /></a>
+                      <a href={transfer ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(transfer.airportAddress)}` : event.mapUrl} target="_blank" rel="noreferrer">Google Maps<Navigation className="size-4" /></a>
                     </Button>
-                {event.ticketUrl && (
-                  <Button asChild variant="outline" size="sm" className="mt-2 min-h-11 rounded-full">
-                    <a href={event.ticketUrl} target="_blank" rel="noreferrer">Ouvrir les billets QR · PDF<ExternalLink className="size-3.5" /></a>
-                  </Button>
-                )}
+
                     {event.bookingUrl && (
                       <Button asChild className="min-h-11 w-full rounded-full bg-blue-600 font-bold text-white hover:bg-blue-700">
                         <a href={event.bookingUrl} target="_blank" rel="noreferrer">Ouvrir Airbnb<ExternalLink className="size-4" /></a>
                       </Button>
                     )}
                   </div>
+                  <details className="group mt-3 rounded-2xl border border-stone-200 bg-white">
+                    <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-bold [&::-webkit-details-marker]:hidden">
+                      Détails<span className="transition-transform group-open:rotate-180" aria-hidden="true">⌄</span>
+                    </summary>
+                    <div className="border-t border-stone-100 p-3">
+                      {transfer ? <TransferCard transfer={transfer} /> : (
+                        <>
+                          {stops?.length ? <ol className="space-y-3">{stops.map((stop, i) => <li key={`${stop.name}:${i}`} className="rounded-xl bg-stone-50 p-3"><p className="text-sm font-bold">{i + 1}. {stop.name}</p>{stop.duration && <p className="mt-1 text-xs font-semibold text-[#176158]">{stop.duration}</p>}{stop.detail && <p className="mt-1 text-xs leading-relaxed text-stone-600"><ContactText text={stop.detail} /></p>}</li>)}</ol>
+                            : activityItems.length ? <ol className="space-y-3">{activityItems.map((item, i) => <li key={`${item.title}:${i}`} className="rounded-xl bg-stone-50 p-3"><p className="text-xs font-semibold text-[#176158]">{item.time}</p><p className="mt-1 text-sm font-bold">{i + 1}. {item.title}</p><p className="mt-1 text-xs leading-relaxed text-stone-600"><ContactText text={item.detail} /></p></li>)}</ol>
+                            : <p className="text-xs leading-relaxed text-stone-600"><ContactText text={matchingItem?.detail || event.detail || 'Programme détaillé non communiqué.'} /></p>}
+                          {matchingItem?.excursion?.note && <p className="mt-3 text-xs leading-relaxed text-stone-600">{matchingItem.excursion.note}</p>}
+                          {matchingItem?.excursion?.voucherInstruction && <p className="mt-2 text-xs leading-relaxed text-stone-600">{matchingItem.excursion.voucherInstruction}</p>}
+                          {matchingItem?.excursion?.meetingContact && <p className="mt-2 text-xs font-semibold">Contact : <ContactText text={matchingItem.excursion.meetingContact} /></p>}
+                          {event.detail && (stops?.length || activityItems.length || matchingItem?.detail) && event.detail !== matchingItem?.detail && <p className="mt-3 text-xs leading-relaxed text-stone-600"><ContactText text={event.detail} /></p>}
+                        </>
+                      )}
+                    </div>
+                  </details>
+                  <TravelDocumentsLink dayId={day.id} eventTitle={event.title} />
                 </article>
               );
             })}
@@ -339,11 +379,24 @@ function NowPanel({ day, events, status }: { day: DailyPlan; events: EventOfDay[
 }
 
 function ActivitiesPanel({ day }: { day: DailyPlan }) {
-  const recommendations = dailyRecommendations[day.id];
+  const baseRecommendations = dailyRecommendations[day.id];
   const airbnbSuggestion = airbnbDaySuggestions[day.id];
+  const isConfirmedActivity = (item: AgendaItem): boolean =>
+    (item.kind === 'activity' || item.kind === 'food') &&
+    (item.paid === true || item.included === true || day.id === 'oct03');
   const activities = day.agenda
     .map((item, index) => ({ item, index }))
-    .filter(({ item }) => item.kind === 'activity' || item.kind === 'free');
+    .filter(({ item }) => isConfirmedActivity(item));
+  const optionalActivities: { title: string; detail: string; sourceUrl?: string }[] = day.agenda
+    .filter(item => (item.kind === 'activity' || item.kind === 'food' || item.kind === 'free') && !isConfirmedActivity(item))
+    .map(item => ({
+      title: `${item.title} · suggestion`,
+      detail: `${item.detail} Option libre ; à envisager uniquement si compatible avec les rendez-vous confirmés${day.id === 'oct07' ? ', notamment le Gion Food Tour de 17:00 à 20:15' : ''}.`,
+    }));
+  const recommendations = {
+    ...baseRecommendations,
+    activities: [...optionalActivities, ...baseRecommendations.activities],
+  };
   const hasAirbnb = airbnbSuggestion.status === 'recommended' && Boolean(airbnbSuggestion.title);
 
   return (
@@ -360,7 +413,7 @@ function ActivitiesPanel({ day }: { day: DailyPlan }) {
       <TabsContent value="planning" className="mt-0">
         {activities.length > 0
           ? <AgendaActivityList day={day} activities={activities} />
-          : <EmptyPanel icon={Landmark} title="Aucune activité planifiée" detail="Les étapes de transport restent disponibles dans l’onglet Transport." />}
+          : <EmptyPanel icon={Landmark} title="Aucune activité confirmée" detail="Les idées de visites sont dans Suggestions. Les trajets restent dans Transport." />}
       </TabsContent>
 
       <TabsContent value="suggestions" className="mt-0 grid gap-3">
@@ -401,7 +454,7 @@ function AgendaActivityList({ day, activities }: { day: DailyPlan; activities: A
               <div className="min-w-0 flex-1">
                 <span className="text-[9px] font-bold uppercase tracking-wide text-[#ff6a57]">{item.time}</span>
                 <span className="mt-0.5 block text-sm font-bold leading-tight">{item.title}</span>
-                <span className="mt-1 block text-xs leading-relaxed text-stone-500">{item.detail}</span>
+                <span className="mt-1 block text-xs leading-relaxed text-stone-500"><ContactText text={item.detail} /></span>
                 <ActivityStatusBadge included={Boolean(item.included)} paid={Boolean(item.paid)} warning={Boolean(item.warning)} label={item.statusLabel} />
                 {item.ticketUrl && (
                   <Button asChild variant="outline" size="sm" className="mt-2 min-h-11 rounded-full">
@@ -452,7 +505,7 @@ function VoyagePriveExcursionCard({ item, dateLabel }: { item: AgendaItem; dateL
           {excursion.stops.map((stop, stopIndex) => (
             <div key={`${stop.name}:${stopIndex}`} className="flex items-center gap-3 rounded-2xl bg-white px-3 py-2.5 shadow-sm">
               <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#e5f0ed] text-[10px] font-black text-[#176158]">{stopIndex + 1}</span>
-              <span className="min-w-0 flex-1 text-xs font-bold text-stone-800">{stop.name}</span>
+              <div className="min-w-0 flex-1"><p className="text-xs font-bold text-stone-800">{stop.name}</p>{stop.detail && <p className="mt-1 text-xs leading-relaxed text-stone-600"><ContactText text={stop.detail} /></p>}</div>
               {stop.duration && <span className="shrink-0 text-[9px] font-semibold text-stone-400">{stop.duration}</span>}
             </div>
           ))}

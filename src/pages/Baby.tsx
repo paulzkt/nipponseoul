@@ -48,14 +48,14 @@ const japaneseWater: BabyMapPlace[] = japaneseCityConfig.flatMap(({ city, hotelI
   }];
 });
 
-const seoulHotel = hotels.find(item => item.id === 'seoul-hotel');
+const seoulHotel = seoulBabySupplyStores[0];
 const seoulWater: BabyMapPlace[] = seoulHotel ? [{
   id: 'seoul-water', city: 'Séoul', country: 'Corée du Sud', kind: 'water', product: 'Jeju Samdasoo', nativeName: '제주삼다수',
   match: 'Eau plate douce · faible minéralisation',
   detail: 'Eau coréenne plate à faible dureté. Calcium 2,5–4 mg/L, magnésium 1,7–3,5 mg/L et sodium 4–7,2 mg/L.',
-  phrase: '「아기 분유용으로 제주삼다수 있나요?」', store: seoulHotel.supermarketName, address: seoulHotel.supermarketAddress,
-  latitude: waterCoordinates.Séoul.latitude, longitude: waterCoordinates.Séoul.longitude,
-  travelTime: seoulHotel.supermarketWalkTime, hours: seoulHotel.supermarketHours, mapUrl: seoulHotel.supermarketMapUrl,
+  phrase: '「아기 분유용으로 제주삼다수 있나요?」', store: seoulHotel.name, address: seoulHotel.address,
+  latitude: seoulHotel.latitude, longitude: seoulHotel.longitude,
+  travelTime: seoulHotel.travelTime, hours: seoulHotel.hours, mapUrl: seoulHotel.mapUrl,
   sourceUrl: babyProductSources.samdasoo,
 }] : [];
 
@@ -134,11 +134,11 @@ export default function Baby() {
   const cityPlaces = useMemo(() => allPlaces.filter(place => place.city === city), [city]);
   const visiblePlaces = useMemo(() => {
     const matchingPlaces = cityPlaces.filter(place => filter === null || place.kind === filter);
-    if (!userPosition) return matchingPlaces;
+    const origin = userPosition ?? { ...babyCityHotels[city], accuracy: 0 };
     return matchingPlaces.sort(
-      (left, right) => distanceFromUser(userPosition, left) - distanceFromUser(userPosition, right),
+      (left, right) => distanceFromUser(origin, left) - distanceFromUser(origin, right),
     );
-  }, [cityPlaces, filter, userPosition]);
+  }, [city, cityPlaces, filter, userPosition]);
   const selectedPlace = visiblePlaces.find(place => place.id === selectedId) ?? null;
 
   const changeCity = (value: string): void => {
@@ -186,7 +186,7 @@ export default function Baby() {
   return (
     <div className="page-shell pb-8">
       <header className="page-heading">
-        <div><p className="eyebrow">Le carnet d’Adam</p><h1 className="page-title">Essentiels bébé</h1><p className="mt-2 max-w-md text-sm leading-relaxed text-stone-600">Eau, couches et lait repérés autour de chaque hôtel.</p></div>
+        <div><p className="eyebrow">Le carnet d’Adam</p><h1 className="page-title">Essentiels bébé</h1><p className="mt-2 max-w-md text-sm leading-relaxed text-stone-600">Adresses repérées, triées par distance. Disponibilité des produits à confirmer.</p></div>
         <div className="flex items-center gap-3 rounded-2xl bg-[#14231d] px-4 py-3 text-white shadow-sm">
           <span className="grid size-10 place-items-center rounded-full bg-[#f1d582] text-[#14231d]"><BabyIcon className="size-5" aria-hidden="true" /></span>
           <div><p className="font-display text-lg leading-none">Adam en voyage</p><p className="mt-1 text-[10px] uppercase tracking-[0.15em] text-stone-300">Né le {adamBirthDate} · {adamAgeDuringTrip}</p></div>
@@ -206,6 +206,8 @@ export default function Baby() {
           return <Button key={kind} type="button" variant="outline" aria-pressed={active} onClick={() => toggleFilter(kind)} className={cn('min-h-14 flex-col gap-1 rounded-2xl border-transparent text-[10px] shadow-sm sm:flex-row sm:text-xs', active ? categoryStyles[kind].active : categoryStyles[kind].soft)}><Icon className="size-5" aria-hidden="true" />{categoryLabels[kind]}</Button>;
         })}
       </div>
+
+      <p className="mt-3 text-xs leading-relaxed text-stone-600">{city === 'Tokyo' ? 'Eau : le 7-Eleven est dans l’hôtel. Couches et lait : le magasin spécialisé indiqué est plus éloigné ; le stock exact reste à confirmer.' : city === 'Séoul' ? 'Eau : demander d’abord à la réception la supérette la plus proche. E-Mart est une option pour regrouper les achats, pas le magasin le plus proche.' : 'Les adresses recensées ne sont pas nécessairement les plus proches. Pour l’eau, une supérette de quartier peut éviter le trajet au supermarché.'}</p>
 
       <section className="mt-3 overflow-hidden rounded-[26px] border border-stone-200 bg-white shadow-sm" aria-label={`Carte des essentiels bébé à ${city}`}>
         <div className="flex items-center justify-between gap-3 border-b border-stone-200 px-4 py-3">
@@ -227,9 +229,9 @@ export default function Baby() {
       </section>
 
       <section className="mt-4" aria-labelledby="baby-place-list-title">
-        <div className="flex items-end justify-between gap-3"><div><p className="eyebrow">{userPosition ? 'Du plus proche au plus éloigné' : filter ? categoryLabels[filter] : `Tout à ${city}`}</p><h2 id="baby-place-list-title" className="section-title">Où acheter</h2></div><Badge variant="outline" className="bg-white">{visiblePlaces.length} adresse{visiblePlaces.length > 1 ? 's' : ''}</Badge></div>
+        <div className="flex items-end justify-between gap-3"><div><p className="eyebrow">{userPosition ? 'Depuis votre position · à vol d’oiseau' : 'Depuis l’hôtel · à vol d’oiseau'}</p><h2 id="baby-place-list-title" className="section-title">Où acheter</h2></div><Badge variant="outline" className="bg-white">{visiblePlaces.length} adresse{visiblePlaces.length > 1 ? 's' : ''}</Badge></div>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
-          {visiblePlaces.map(place => <EssentialPlaceCard key={place.id} place={place} selected={selectedPlace?.id === place.id} onSelect={() => setSelectedId(place.id)} distanceKm={userPosition ? distanceFromUser(userPosition, place) : undefined} />)}
+          {visiblePlaces.map(place => <EssentialPlaceCard key={place.id} place={place} selected={selectedPlace?.id === place.id} onSelect={() => setSelectedId(place.id)} distanceKm={distanceFromUser(userPosition ?? { ...babyCityHotels[city], accuracy: 0 }, place)} />)}
         </div>
       </section>
       <SafetyNote kind={filter} />

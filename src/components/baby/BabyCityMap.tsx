@@ -64,6 +64,26 @@ function MapViewport({ city, places }: { city: BabyCity; places: BabyMapPlace[] 
   return null;
 }
 
+function HotelFocusButton({ city }: { city: BabyCity }) {
+  const map = useMap();
+  const hotel = babyCityHotels[city];
+
+  return (
+    <button
+      type="button"
+      className="absolute right-3 top-3 z-[1000] min-h-11 rounded-xl border border-stone-300 bg-white px-3 text-sm font-semibold text-[#14231d] shadow-md"
+      aria-label={`Voir l’hôtel : ${hotel.name}`}
+      onClick={(event) => {
+        event.stopPropagation();
+        map.setView([hotel.latitude, hotel.longitude], 15);
+      }}
+      onDoubleClick={event => event.stopPropagation()}
+    >
+      H · Voir l’hôtel
+    </button>
+  );
+}
+
 function UserLocationFocus({ position }: { position: UserMapPosition | null }) {
   const map = useMap();
 
@@ -96,6 +116,7 @@ export function BabyCityMap({ city, places, selectedId, onSelect, userPosition, 
       />
       <MapViewport city={city} places={places} />
       <UserLocationFocus position={userPosition} />
+      <HotelFocusButton city={city} />
       <Marker position={[hotel.latitude, hotel.longitude]} icon={hotelIcon}>
         <Popup><strong>{hotel.name}</strong><br />Votre hôtel</Popup>
       </Marker>

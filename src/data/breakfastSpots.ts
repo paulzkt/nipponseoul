@@ -60,7 +60,7 @@ export const breakfastSpots: Record<string, BreakfastSpot> = {
     walkTime: '≈ 8–10 min à pied depuis le Grand Prince Takanawa',
     address: '4-10-30 Takanawa, Minato City, Tokyo',
     order: 'Morning Plate + boisson, ou formule à emporter',
-    timing: 'Dès 06:00–06:30 avant le départ vers le mont Fuji',
+    timing: 'À votre rythme pour la journée libre à Tokyo',
     note: 'Choix le plus sûr du secteur pour un départ très matinal.',
     mapUrl: 'https://www.google.com/maps/dir/?api=1&origin=Grand+Prince+Hotel+Takanawa&destination=Shinagawa+Pivot&travelmode=walking',
     sourceUrl: 'https://www.princehotels.co.jp/shinagawa/informations/breakfast_english/',

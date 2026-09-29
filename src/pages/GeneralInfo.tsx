@@ -1,3 +1,4 @@
+import { ContactText } from '@/components/trip/ContactText';
 import { useState, type ReactNode } from 'react';
 import {
   Banknote,
@@ -42,7 +43,7 @@ export default function GeneralInfo() {
     <div className="page-shell">
       <header className="overflow-hidden rounded-[28px] bg-[#14231d] p-5 text-white shadow-[0_18px_45px_rgba(20,35,29,.18)]">
         <Badge className="bg-[#f1d582] text-[#14231d]">Guide pratique</Badge>
-        <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#b8dfe3]">Japon · À garder sous la main</p>
+        <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#b8dfe3]">Japon & Corée · À garder sous la main</p>
         <h1 className="mt-2 font-display text-4xl font-bold leading-none">General Info</h1>
         <p className="mt-3 max-w-sm text-sm leading-relaxed text-stone-300">Les informations essentielles du document de voyage, organisées pour retrouver une réponse en quelques secondes.</p>
         <div className="mt-5 grid grid-cols-3 gap-2">
@@ -94,47 +95,42 @@ export default function GeneralInfo() {
 
 function EssentialInfo() {
   return (
-    <Section title="Le Japon en bref" eyebrow="Repères">
-      <InfoCard icon={Globe2} title="Géographie">
-        <p>Archipel d’Asie de l’Est situé dans le Pacifique, composé de quatre îles principales — Honshu, Hokkaido, Kyushu et Shikoku — et de nombreuses petites îles.</p>
-        <p>Le pays est montagneux, avec les Alpes japonaises et le mont Fuji. Son littoral accidenté et ses climats, tempérés au nord et subtropicaux au sud, ont favorisé une forte diversité culturelle et biologique.</p>
+    <Section title="Avant de partir" eyebrow="Japon & Corée">
+      <InfoCard icon={PlaneTakeoff} title="Vols · les essentiels">
+        <p><strong>30 sept. · 10:10</strong> — AF186, CDG 2E. À l’aéroport vers <strong>07:00</strong>. Arrivée Haneda le 1er oct. à 06:25.</p>
+        <p><strong>12 oct. · 10:25</strong> — Peach MM737, KIX T2 → Gimpo 12:20. Départ hôtel <strong>05:30</strong> ; taxi à réserver.</p>
+        <p><strong>15 oct. · 11:45</strong> — AF267, Incheon → Paris 18:55. Transfert à organiser.</p>
+        <p className="text-xs text-stone-500">Rendez-vous, chauffeurs et billets dans les événements du jour.</p>
       </InfoCard>
-      <InfoCard title="Histoire & société">
-        <p>L’histoire japonaise s’étend des cultures Jomon et Yayoi aux dynasties classiques, puis à l’époque féodale des samouraïs et des shoguns. La restauration Meiji de 1868 accélère sa modernisation. Après 1945, le Japon adopte une constitution pacifiste et devient une puissance économique, technologique et culturelle majeure.</p>
-        <p>La population dépasse 126 millions d’habitants et vit principalement dans des zones urbaines très denses.</p>
+      <InfoCard icon={PhoneCall} title="Urgence · Voyage Privé" tone="alert">
+        <p>7j/7 · horaires français</p>
+        <LinkButton href="https://wa.me/33484390920" label="WhatsApp · +33 4 84 39 09 20" />
+        <p>09:00–20:30</p>
+        <LinkButton href="tel:+33970174751" label="Appeler · +33 9 70 17 47 51" />
+        <p>09:00–21:00</p>
       </InfoCard>
-      <InfoCard title="Langue & gouvernement">
-        <p>La langue principale est le japonais, avec des dialectes régionaux comme le Kansai, le Kanto et le Tohoku. L’anglais est enseigné et utilisé dans certains contextes professionnels, mais n’est pas une langue native.</p>
-        <p>Le Japon est une monarchie constitutionnelle avec un gouvernement parlementaire. L’empereur est chef d’État cérémoniel et le pouvoir politique appartient aux élus, réparti entre exécutif, législatif et judiciaire.</p>
+      <InfoCard icon={PhoneCall} title="Contacts sur place">
+        <p><ContactText text="VIO Travel · +66 2 028 2018 · appels / WhatsApp" /></p>
+        <p><ContactText text="VIO Travel · +66 92 247 2382 · WhatsApp uniquement" /></p>
+        <p><ContactText text="Séoul, 13 oct. · +82 10-9809-3501 · WhatsApp" /></p>
+        <LinkButton href="tel:+818070122238" label="Guide Osaka · +81 80-7012-2238" />
       </InfoCard>
-      <InfoCard icon={Shirt} title="Climat & vêtements">
+      <InfoCard icon={BriefcaseBusiness} title="À vérifier">
         <BulletList items={[
-          'Hokkaido : climat continental humide, hivers froids et étés doux.',
-          'Honshu : climat variable ; subtropical humide à Tokyo, plus océanique et humide à Kyoto.',
-          'Shikoku et Kyushu : étés chauds et humides, hivers doux, pluies et typhons possibles en été et en automne.',
-          'Okinawa : climat subtropical, chaud et humide toute l’année.',
-          'Automne (septembre à novembre) : privilégier les couches, un pull léger, une veste et un pantalon long.',
-          'Hiver : manteau, pulls et couches thermiques ; équipement renforcé dans le nord.',
-          'Printemps : superposer veste légère, pull et manches longues.',
-          'Été : vêtements légers et respirants, chapeau et crème solaire.',
+          'Passeports, cartes d’embarquement et billets accessibles hors ligne. Kintetsu : billet en ligne au contrôle.',
+          'Assurance, connexion mobile, bagages et équipements bébé.',
+          'Food tours sans viande ni alcool : demande prise en compte à Kyoto ; confirmation attendue à Séoul.',
         ]} />
       </InfoCard>
-      <InfoCard title="Meilleures saisons">
-        <p><strong>Sports d’hiver :</strong> de décembre à mars, avec la meilleure poudreuse en janvier. Bonnes conditions en février, encore possibles début mars. Régions phares : Hokkaido, Nagano, Niigata et Yamagata.</p>
-        <p><strong>Été :</strong> de juin à août. Hakone pour les onsens et les vues sur le mont Fuji, Okinawa pour les plages et Aomori pour le Nebuta Matsuri.</p>
-      </InfoCard>
-      <InfoCard icon={PlaneTakeoff} title="Entrée & sortie du territoire" tone="alert">
-        <BulletList items={[
-          'Passeport valide obligatoire à l’entrée comme à la sortie.',
-          'Visa selon la nationalité ; de nombreux pays bénéficient d’une exemption pour les courts séjours.',
-          'Compléter Visit Japan Web sur mobile avant le départ afin d’obtenir les QR codes immigration et douane.',
-          'À la sortie, respecter les règles douanières d’exportation, les restrictions et franchises duty-free.',
-        ]} />
-        <div className="mt-4 flex flex-wrap gap-2">
+      <InfoCard icon={Globe2} title="Formalités">
+        <p>Vérifier les formalités de chaque voyageur dans Réservations.</p>
+        <div className="flex flex-wrap gap-2">
           <LinkButton href="https://www.vjw.digital.go.jp/main/#/vjwplo001" label="Visit Japan Web" />
-          <LinkButton href="https://www.mofa.go.jp/j_info/visit/visa/index.html" label="Règles de visa" />
-          <LinkButton href="https://www.youtube.com/watch?v=HX_PXIbg5Zc" label="Tutoriel vidéo" />
+          <LinkButton href="https://www.e-arrivalcard.go.kr/" label="e-Arrival Card · Corée" />
         </div>
+      </InfoCard>
+      <InfoCard icon={Shirt} title="Dans la valise">
+        <p>Pour octobre : vêtements en couches, pull léger, veste et pantalon long.</p>
       </InfoCard>
     </Section>
   );
@@ -353,7 +349,7 @@ function BaggageInfo() {
           'Le Japon applique des règles strictes aux médicaments : vérifier les autorisations si vous transportez un traitement sur ordonnance.',
           'Les comptoirs Hands-Free Travel acheminent les bagages vers l’hôtel depuis de grands aéroports : Narita, Haneda, Kansai, Chubu Centrair, New Chitose, Fukuoka et Naha.',
         ]} />
-        <div className="mt-4"><LinkButton href="https://www.global-yamato.com/en/hands-free-travel/" label="Livraison de bagages" /></div>
+        <div className="mt-4"><LinkButton href="https://www.global-yamato.com/en/hands-free-travel/" label="Livraison de bagages" /><LinkButton href="https://www.japan-experience.com/fr/preparer-voyage/savoir/avant-de-partir/takkyubin-expedier-vos-bagages-entre-des-destinations-au-japon" label="Guide Takkyubin · Japan Experience" /></div>
       </InfoCard>
       <InfoCard icon={TriangleAlert} title="Tatouages" tone="alert">
         <p>Les tatouages ne sont pas illégaux, mais ils ne sont pas acceptés partout. Certains temples, sanctuaires, hôtels de plage et onsens peuvent demander de les couvrir.</p>

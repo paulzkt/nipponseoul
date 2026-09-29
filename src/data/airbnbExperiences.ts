@@ -16,7 +16,7 @@ export const airbnbDaySuggestions: Record<string, AirbnbDaySuggestion> = {
     status: 'skip',
     note: 'L’atelier sushi repéré impose un âge minimum de 4 ans : Adam n’y sera pas admissible à 18 mois. Ne pas réserver cette expérience.',
   },
-  oct04: { status: 'skip', note: 'Excursion au mont Fuji sur la journée : ne pas ajouter de réservation avec horaire fixe.' },
+  oct04: { status: 'skip', note: 'Journée libre à Tokyo : aucune réservation prévue.' },
   oct05: { status: 'skip', note: 'Changement de ville et installation à Kyoto : garder une marge pour le Shinkansen et les bagages.' },
   oct06: { status: 'skip', note: 'La visite des trois temples est incluse le matin. Garder l’après-midi libre pour récupérer ou improviser avec Adam.' },
   oct07: { status: 'skip', note: 'Le « Kyoto: Gion Food Tour 13 dishes & 4 Local Eateries » est confirmé de 17:00 à 20:15 et figure dans les événements de la journée.' },

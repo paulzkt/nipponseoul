@@ -58,14 +58,8 @@ export const dailyRecommendations: Record<string, DayRecommendations> = {
     },
   },
   oct04: {
-    activities: [
-    ],
-    emptyReason: "Excursion au mont Fuji et retour à Tokyo : garder la soirée pour le repos et les bagages.",
-    meals: {
-      breakfast: 'Onigiri, banane et boisson chaude à emporter pour le départ matinal.',
-      lunch: 'Hōtō de Yamanashi : nouilles épaisses, légumes et bouillon miso, idéal par temps frais.',
-      dinner: 'Dîner libre près du Grand Prince Hotel Takanawa après le retour à Tokyo.',
-    },
+    activities: [{ title: 'Mont Fuji · idée pour une autre occasion', detail: 'Suggestion uniquement, hors planning du 4 octobre et sans réservation. À envisager séparément selon la météo, les transports et le rythme familial.' }],
+    meals: { breakfast: 'Petit-déjeuner près de l’hôtel.', lunch: 'Choisir une adresse halal ou seafood dans Restaurants.', dinner: 'Dîner près de l’hôtel avant les bagages pour Kyoto.' },
   },
   oct05: {
     activities: [
