@@ -2,19 +2,20 @@ import { formatRestaurantBudget } from '@/data/restaurantSorting';
 import { MapPin } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent, Card, CardContent, Badge, Button } from '@/components/ui';
 import { GoogleRating } from '@/components/restaurants/GoogleRating';
-import { mealLabels, mealsForCity } from '@/data/restaurantMeals';
+import { mealLabels, mealsForDay } from '@/data/restaurantMeals';
 import type { Meal } from '@/data/restaurantMeals';
 import { restaurantDisplayName, restaurantGoogleUrl, restaurantHotels } from '@/data/restaurants';
 
-export function RestaurantMealPanel({ city }: { city: string }) {
-  const meals = mealsForCity(city);
+export function RestaurantMealPanel({ city, dayId }: { city: string; dayId: string }) {
+  const meals = mealsForDay(city, dayId);
   if (!meals) return <p className="p-4 text-sm text-stone-500">Les suggestions apparaîtront pour Tokyo, Kyoto, Osaka et Séoul.</p>;
   return <Tabs defaultValue="breakfast" className="gap-3">
     <TabsList aria-label="Choisir un repas" className="!grid !h-auto w-full grid-cols-3 rounded-2xl bg-white p-1">
       {(Object.keys(mealLabels) as Meal[]).map(meal => <TabsTrigger key={meal} value={meal} className="min-h-11 min-w-0 rounded-xl px-1 text-xs data-active:bg-[#173d3a] data-active:text-white">{mealLabels[meal]}</TabsTrigger>)}
     </TabsList>
     {(Object.keys(mealLabels) as Meal[]).map(meal => <TabsContent key={meal} value={meal} className="space-y-3">
-      <p className="text-xs text-stone-500">3 idées à {city === 'Seoul' ? 'Séoul' : city} · à choisir selon le quartier de la journée.</p>
+      <p className="text-xs text-stone-500">{meals[meal].length} idées à {city === 'Seoul' ? 'Séoul' : city} · sélection du jour.</p>
+      {meal === 'breakfast' && <p className="text-xs text-stone-500">Rotation des adresses disponibles ; certains petits-déjeuners reviennent faute de choix supplémentaires dans la liste.</p>}
       {meal === 'breakfast' && city === 'Seoul' && <p className="rounded-xl bg-amber-50 p-3 text-xs text-amber-900">Votre liste contient peu d’adresses de petit-déjeuner tôt. Ces options incluent des brunchs ; vérifiez l’ouverture avant de partir.</p>}
       {meals[meal].map(({ restaurant, description, timing, proximity }) => <Card key={restaurant.id} className="gap-0 rounded-2xl py-0">
         <CardContent className="space-y-2 p-4">

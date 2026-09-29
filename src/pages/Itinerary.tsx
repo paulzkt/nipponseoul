@@ -182,7 +182,7 @@ export default function Itinerary() {
         </TabsContent>
 
         <TabsContent value="restaurant" className="mt-3">
-          <RestaurantMealPanel city={day.city} />
+          <RestaurantMealPanel city={day.city} dayId={day.id} />
         </TabsContent>
 
         <TabsContent value="around" className="mt-3">

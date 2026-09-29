@@ -1,3 +1,4 @@
+import { restaurantSummary } from './restaurantSummary';
 import { halalRestaurants } from './restaurants';
 import type { RestaurantCity } from './restaurants';
 
@@ -129,4 +130,44 @@ export function mealsForCity(city: string) {
       return restaurant ? [{ ...pick, restaurant }] : [];
     }),
   ])) as Record<Meal, Array<MealPick & { restaurant: typeof halalRestaurants[number] }>>;
+}
+
+// Only explicitly identified morning options belong in the breakfast pool.
+const extraBreakfastIds = ['shinpachi-tamachi', 'marutoyo-tsukiji', 'tsumugi-tsukiji', 'kishin-gion-breakfast', 'imari-breakfast', 'mandmaison-kyoto', 'shinpachi-shinsaibashi'];
+const firstDay: Record<RestaurantCity, number> = { Tokyo: 1, Kyoto: 5, Osaka: 9, Seoul: 12 };
+
+export function mealsForDay(city: string, dayId: string) {
+  const base = mealsForCity(city);
+  if (!base) return undefined;
+  const typedCity = city as RestaurantCity;
+  const breakfastIds = new Set([...Object.values(restaurantMeals).flatMap(meals => meals.breakfast.map(pick => pick.id)), ...extraBreakfastIds]);
+  const eligible = halalRestaurants.filter(r => r.city === city && (r.halalStatus !== 'À vérifier' || r.pinKind === 'seafood') && !/fermeture définitive|fermé définitivement/i.test(r.note ?? ''));
+  const dayNumber = Number(dayId.replace('oct', ''));
+  const offset = Math.max(0, (Number.isFinite(dayNumber) ? dayNumber : firstDay[typedCity]) - firstDay[typedCity]);
+  const usage = new Map<string, number>();
+  let result = base;
+  for (let day = 0; day <= offset; day++) {
+    const usedToday = new Set<string>();
+    result = Object.fromEntries((Object.keys(mealLabels) as Meal[]).map(meal => {
+      const pool = eligible.filter(r => meal === 'breakfast' ? breakfastIds.has(r.id) : !breakfastIds.has(r.id));
+      const chosen: typeof base[Meal] = [];
+      const categories = new Set<string>();
+      for (let slot = 0; slot < 3; slot++) {
+        const candidates = pool.filter(r => !usedToday.has(r.id) && !chosen.some(p => p.id === r.id)
+          && !(r.id === 'kishin-gion-breakfast' && [3, 4].includes(new Date(Date.UTC(2026, 9, firstDay[typedCity] + day)).getUTCDay())));
+        candidates.sort((a, b) => (usage.get(a.id) ?? 0) - (usage.get(b.id) ?? 0)
+          || Number(categories.has(a.category)) - Number(categories.has(b.category))
+          || ((pool.indexOf(a) - day + pool.length) % pool.length) - ((pool.indexOf(b) - day + pool.length) % pool.length));
+        const restaurant = candidates[0];
+        if (!restaurant) break;
+        const curated = Object.values(base).flat().find(p => p.id === restaurant.id);
+        chosen.push(curated ?? { id: restaurant.id, restaurant, description: restaurantSummary(restaurant), timing: meal === 'breakfast' ? restaurant.note : undefined });
+        categories.add(restaurant.category);
+        usedToday.add(restaurant.id);
+        usage.set(restaurant.id, (usage.get(restaurant.id) ?? 0) + 1);
+      }
+      return [meal, chosen];
+    })) as typeof base;
+  }
+  return result;
 }
